@@ -103,11 +103,12 @@ def handle_dragon_collision():
     animate(hero,pos=HERO_START,on_finished=subtract_life) #reset the hero back to original position after lives are subtracte
 
 def check_egg_collision(dragon):
-    global eggs_collected, game_complete
+    global eggs_collected, game_complete, dragons_list
     if hero.colliderect(dragon['eggs']):
         dragon['eggs_hidden'] = True #hide the eggs now that they are collided with
         eggs_collected += dragon['egg_count']
         if eggs_collected>=EGG_TARGET:
+            print('hello')
             game_complete=True
 
 def check_dragon_collision(dragon):
