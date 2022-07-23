@@ -108,6 +108,7 @@ def check_egg_collision(dragon):
         dragon['egg_hidden'] = True #hide the eggs now that they are collided with
         eggs_collected += dragon['egg_count']
         if eggs_collected>=EGG_TARGET:
+            print('hello')
             game_complete=True
 
 def check_dragon_collision(dragon):
