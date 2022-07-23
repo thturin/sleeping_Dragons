@@ -1,4 +1,4 @@
-import pgzrun, math
+import pgzrun, math, time
 """
 Project No. Sleeping Dragons 
 Control the hero by with the 4 arrow keys. Hero must collect 20 eggs from the dragon lair to win. If the hero 
@@ -20,7 +20,6 @@ ATTACK_DIST = 200
 DRAGON_WAKE_TIME = 2
 EGG_HIDE_TIME = 2
 MOVE_DISTANCE = 5
-
 #globa vars
 lives=3
 eggs_collected = 0
@@ -28,6 +27,7 @@ eggs_collected = 0
 game_over = False
 game_complete =False
 reset_required = False
+lost_a_life = False
 
 #dictionaries
 easy_dragon = {
@@ -64,18 +64,19 @@ dragons_list = [easy_dragon,medium_dragon,hard_dragon]
 hero = Actor('hero',pos=HERO_START)
 
 def draw():
+    global lost_a_life
     screen.clear()
     screen.blit('dungeon',(0,0))
     if not game_over:
         hero.draw()
         draw_dragons(dragons_list)
         draw_counters(eggs_collected,lives)
+        if lost_a_life:
+            screen.draw.text('You lost a life!', fontsize=60, center=CENTER, color='red')
     elif game_complete:
         screen.draw.text('YOU WON!', fontsize=60,center=CENTER,color=FONT_COLOR)
     else: #game over
         screen.draw.text('GAME OVER ', fontsize=60, center=CENTER, color=FONT_COLOR)
-
-
 
 def draw_dragons(dragons_dict):
     for dragon in dragons_dict:
@@ -98,8 +99,9 @@ def subtract_life():
 
 def handle_dragon_collision():
     #reset hero back to original position and then call subtract_life function
-    global reset_required
+    global reset_required, lost_a_life
     reset_required = True
+    lost_a_life = True
     animate(hero,pos=HERO_START,on_finished=subtract_life) #reset the hero back to original position after lives are subtracte
 
 def check_egg_collision(dragon):
@@ -166,12 +168,17 @@ def update_dragons():
 
 
 def print_stats():
+    print(lost_a_life)
+    # for dragon in dragons_list:
+    #     print('dragon[egg_hide_counter]={} and dragon[egg_hidden]={}'.format(dragon['egg_hide_counter'],dragon['egg_hidden']))
+    #     print('dragon #{}: wake_counter={} sleep_counter={}'.format(dragon['egg_count'],dragon['wake_counter'],dragon['sleep_counter']))
+    # print('----------------------------------------------------')
 
-    for dragon in dragons_list:
-        print('dragon[egg_hide_counter]={} and dragon[egg_hidden]={}'.format(dragon['egg_hide_counter'],dragon['egg_hidden']))
-        #print('dragon #{}: wake_counter={} sleep_counter={}'.format(dragon['egg_count'],dragon['wake_counter'],dragon['sleep_counter']))
-    print('----------------------------------------------------')
+def check_center_pos():
+    global lost_a_life
 
+    if hero.pos==HERO_START and lost_a_life is True:
+        lost_a_life=False
 
 def update():
     if not game_over:
@@ -184,7 +191,10 @@ def update():
         if keyboard.left and hero.x>0:
             hero.x -= MOVE_DISTANCE
         check_for_collision()
+        check_center_pos()
+
+
 
 clock.schedule_interval(update_dragons,1)
-
+#clock.schedule_interval(print_stats,1)
 pgzrun.go()
